@@ -24,7 +24,7 @@
     </div>
     <div class="order-first md:order-last" use:reveal>
       <div class="card p-4 sm:p-6">
-        <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1600&auto=format&fit=crop" alt="software engineering" class="rounded-lg object-cover w-full h-64"/>
+        <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1600&auto=format&fit=crop" alt="تصویر برنامه‌نویسی و توسعه نرم‌افزار" width="1600" height="900" decoding="async" fetchpriority="high" class="rounded-lg object-cover w-full h-64"/>
       </div>
     </div>
   </div>

@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 
-const BASE = 'https://tehranbot.ir';
+const BASE = 'https://tehranbot.me';
 
 const routes = [
   '/',

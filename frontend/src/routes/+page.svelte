@@ -9,13 +9,14 @@
   import Footer from '$lib/components/Footer.svelte';
   import { enhance } from '$app/forms';
   import { page } from '$app/stores';
+  import { reveal } from '$lib/actions/reveal';
 
   const form = $derived($page.form as any);
   const values = $derived(form?.values || {});
 </script>
 
 <Header />
-<main>
+<main id="main-content">
   <Hero />
   <Services />
   <Why />
@@ -25,7 +26,7 @@
 
   <section id="contact" class="section">
     <div class="container-rtl grid gap-10 md:grid-cols-2 items-start">
-      <div>
+      <div use:reveal>
         <h2 class="text-3xl md:text-4xl">ارتباط با ما</h2>
         <p class="lead mt-2">برای مشاوره رایگان و شروع همکاری، فرم زیر را تکمیل کنید یا از روش‌های زیر استفاده کنید.</p>
         <ul class="mt-6 space-y-3 text-slate-700 dark:text-slate-300">
@@ -36,36 +37,36 @@
         </ul>
       </div>
 
-      <form method="post" class="card p-6 space-y-4" use:enhance>
+      <form method="post" class="card p-6 space-y-4" use:enhance use:reveal>
         {#if form?.success}
-          <div class="rounded-xl bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-200 p-3 text-sm">پیام شما با موفقیت ارسال شد. به زودی با شما تماس می‌گیریم.</div>
+          <div role="status" aria-live="polite" class="rounded-xl bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-200 p-3 text-sm">پیام شما با موفقیت ارسال شد. به زودی با شما تماس می‌گیریم.</div>
         {/if}
         <div>
           <label class="block text-sm mb-1" for="name">نام و نام خانوادگی</label>
-          <input id="name" name="name" value={values.name || ''} class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" required />
+          <input id="name" name="name" value={values.name || ''} autocomplete="name" aria-invalid={form?.errors?.name ? 'true' : 'false'} aria-describedby="name-error" class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" required />
           {#if form?.errors?.name}
-            <div class="mt-1 text-xs text-red-600">{form.errors.name}</div>
+            <div id="name-error" class="mt-1 text-xs text-red-600">{form.errors.name}</div>
           {/if}
         </div>
         <div>
           <label class="block text-sm mb-1" for="email">ایمیل</label>
-          <input id="email" name="email" type="email" value={values.email || ''} class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" required />
+          <input id="email" name="email" type="email" value={values.email || ''} autocomplete="email" aria-invalid={form?.errors?.email ? 'true' : 'false'} aria-describedby="email-error" class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" required />
           {#if form?.errors?.email}
-            <div class="mt-1 text-xs text-red-600">{form.errors.email}</div>
+            <div id="email-error" class="mt-1 text-xs text-red-600">{form.errors.email}</div>
           {/if}
         </div>
         <div>
           <label class="block text-sm mb-1" for="phone">شماره تماس</label>
-          <input id="phone" name="phone" inputmode="tel" value={values.phone || ''} class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" />
+          <input id="phone" name="phone" inputmode="tel" autocomplete="tel" value={values.phone || ''} aria-invalid={form?.errors?.phone ? 'true' : 'false'} aria-describedby="phone-error" class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900" />
           {#if form?.errors?.phone}
-            <div class="mt-1 text-xs text-red-600">{form.errors.phone}</div>
+            <div id="phone-error" class="mt-1 text-xs text-red-600">{form.errors.phone}</div>
           {/if}
         </div>
         <div>
           <label class="block text-sm mb-1" for="message">پیام شما</label>
-          <textarea id="message" name="message" rows="5" class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">{values.message || ''}</textarea>
+          <textarea id="message" name="message" rows="5" aria-describedby="message-error" class="w-full rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">{values.message || ''}</textarea>
           {#if form?.errors?.message}
-            <div class="mt-1 text-xs text-red-600">{form.errors.message}</div>
+            <div id="message-error" class="mt-1 text-xs text-red-600">{form.errors.message}</div>
           {/if}
         </div>
         <div class="flex flex-row-reverse">
