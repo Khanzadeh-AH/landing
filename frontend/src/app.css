@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Persian font and base styles */
+:root {
+  --tb-primary: #06b6d4;
+  --tb-bg: #0b1220;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans;
+}
+
+.container-rtl {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.section {
+  @apply py-14 sm:py-16 md:py-20;
+}
+
+.card {
+  @apply rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/60 shadow-sm backdrop-blur;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors duration-200;
+}
+.btn-primary {
+  @apply btn bg-primary-600 text-white hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500;
+}
+.btn-ghost {
+  @apply btn bg-transparent text-slate-700 dark:text-slate-200 hover:bg-slate-100/60 dark:hover:bg-slate-800/60;
+}
+
+.badge {
+  @apply inline-flex items-center gap-1 rounded-full border border-slate-200 dark:border-slate-700 px-3 py-1 text-xs text-slate-600 dark:text-slate-300;
+}
+
+h1, h2, h3, h4 {
+  @apply font-extrabold tracking-tight text-slate-900 dark:text-white;
+}
+
+.lead {
+  @apply text-slate-600 dark:text-slate-300;
+}
