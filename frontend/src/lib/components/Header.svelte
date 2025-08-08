@@ -21,6 +21,9 @@
         <a href={item.href} class="text-slate-700 dark:text-slate-200 hover:text-primary-600">{item.label}</a>
       {/each}
       <a href="#contact" class="btn-primary">مشاوره رایگان</a>
+      <span class="hidden lg:inline-flex items-center gap-1 rounded-full border border-amber-300/60 bg-amber-50/70 text-amber-800 dark:border-amber-300/20 dark:bg-amber-400/10 dark:text-amber-200 px-2 py-1 text-[11px]">
+        ظرفیت این ماه محدود است
+      </span>
     </nav>
 
     <button type="button" class="md:hidden inline-flex items-center justify-center rounded-xl p-2 hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500" on:click={() => (open = !open)} aria-label="باز و بسته کردن منو" aria-expanded={open} aria-controls="mobile-navigation">
@@ -37,6 +40,7 @@
           <a href={item.href} class="py-2" on:click={() => (open = false)}>{item.label}</a>
         {/each}
         <a href="#contact" class="btn-primary" on:click={() => (open = false)}>مشاوره رایگان</a>
+        <div class="text-xs text-amber-600 dark:text-amber-300 mt-1">میانگین پاسخ‌گویی: کمتر از ۲ ساعت</div>
       </div>
     </div>
   {/if}
