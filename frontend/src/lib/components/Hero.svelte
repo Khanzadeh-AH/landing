@@ -14,12 +14,12 @@
       <h1 class="mt-4 text-3xl sm:text-4xl md:text-5xl leading-tight">
         رشد فروش و بهره‌وری با راهکارهای هوشمند اختصاصی
       </h1>
-      <p class="lead mt-4 max-w-prose">
+      <p class="lead mt-4 max-w-prose text-slate-700 dark:text-slate-300">
         در تهران‌بات، تیم ما با ترکیب توسعه نرم‌افزار مدرن و هوش مصنوعی عملیاتی، به شما کمک می‌کند سریع‌تر به نتایج تجاری برسید — با ریسک کمتر و بازگشت سرمایه‌ بالاتر.
       </p>
       <div class="mt-6 flex flex-row-reverse gap-3">
-        <a href="#contact" class="btn-primary">مشاوره رایگان</a>
-        <a href="#services" class="btn-ghost">مشاهده خدمات</a>
+        <a href="#contact" class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">مشاوره رایگان</a>
+        <a href="#services" class="btn-ghost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">مشاهده خدمات</a>
       </div>
       <div class="mt-5 flex flex-row-reverse items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
         <div class="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 px-3 py-2">
@@ -34,7 +34,7 @@
     </div>
     <div class="order-first md:order-last" use:reveal>
       <div class="card p-4 sm:p-6">
-        <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1600&auto=format&fit=crop" alt="تصویر برنامه‌نویسی و توسعه نرم‌افزار" width="1600" height="900" decoding="async" fetchpriority="high" class="rounded-lg object-cover w-full h-64"/>
+        <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1600&auto=format&fit=crop" alt="تصویر برنامه‌نویسی و توسعه نرم‌افزار" width="1600" height="900" decoding="async" fetchpriority="high" class="rounded-xl object-cover w-full h-64 shadow-md ring-1 ring-slate-200/60 dark:ring-slate-800/60"/>
       </div>
     </div>
   </div>
