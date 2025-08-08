@@ -9,9 +9,12 @@ import (
 
 // Config holds application configuration.
 type Config struct {
-	AppName string
-	Env     string
-	Port    int
+	AppName    string
+	Env        string
+	Port       int
+
+	// Database
+	DatabaseURL string
 
 	// Build/Version metadata
 	Version    string
@@ -25,6 +28,7 @@ func Load() Config {
 		AppName:    getEnv("APP_NAME", "landing-backend"),
 		Env:        strings.ToLower(getEnv("ENV", "development")),
 		Port:       getEnvAsInt("PORT", 8080),
+		DatabaseURL: getEnv("DATABASE_URL", ""),
 		Version:    getEnv("VERSION", ""),
 		CommitHash: getEnv("COMMIT_HASH", ""),
 		BuildDate:  getEnv("BUILD_DATE", ""),

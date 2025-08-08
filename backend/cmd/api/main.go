@@ -15,6 +15,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 
 	"landing/backend/internal/config"
+	"landing/backend/internal/db"
 	"landing/backend/internal/middleware"
 	"landing/backend/internal/routes"
 )
@@ -30,6 +31,26 @@ func main() {
 		EnablePrintRoutes:     cfg.IsDevelopment(),
 		DisableStartupMessage: false,
 	})
+
+	// Initialize database (Ent)
+	{
+		ctx := context.Background()
+		client, err := db.OpenClient(ctx, cfg)
+		if err != nil {
+			log.Fatalf("database initialization failed: %v", err)
+		}
+		// Inject client into each request context
+		app.Use(func(c *fiber.Ctx) error {
+			c.Locals("ent", client)
+			return c.Next()
+		})
+		// Ensure DB is closed on shutdown
+		defer func() {
+			if err := client.Close(); err != nil {
+				log.Printf("error closing db client: %v", err)
+			}
+		}()
+	}
 
 	// Global middleware
 	middleware.Register(app, cfg)
