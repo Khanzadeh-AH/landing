@@ -30,8 +30,8 @@
         <h2 class="text-3xl md:text-4xl">ارتباط با ما</h2>
         <p class="lead mt-2">برای مشاوره رایگان و شروع همکاری، فرم زیر را تکمیل کنید یا از روش‌های زیر استفاده کنید.</p>
         <ul class="mt-6 space-y-3 text-slate-700 dark:text-slate-300">
-          <li>شماره تماس: <a class="hover:underline" href="tel:+989190737241">+98 919 073 7241</a></li>
-          <li>واتساپ: <a class="hover:underline" href="https://wa.me/989190737241" target="_blank" rel="noopener">+98 919 073 7241</a></li>
+          <li>شماره تماس: <a class="hover:underline ltr" href="tel:+989190737241">+98 919 073 7241</a></li>
+          <li>واتساپ: <a class="hover:underline ltr" href="https://wa.me/989190737241" target="_blank" rel="noopener">+98 919 073 7241</a></li>
           <li>تلگرام: <a class="hover:underline" href="https://t.me/Khanzadeh_AH" target="_blank" rel="noopener">Khanzadeh_AH</a></li>
           <li>ایمیل: <a class="hover:underline" href="mailto:khanzadeh78ah@gmail.com">khanzadeh78ah@gmail.com</a></li>
         </ul>

@@ -21,8 +21,8 @@
     <div>
       <div class="font-semibold">اطلاعات تماس</div>
       <ul class="mt-3 space-y-2">
-        <li>تلفن: <a href="tel:+989190737241" class="hover:underline">+98 919 073 7241</a></li>
-        <li>واتساپ: <a href="https://wa.me/989190737241" target="_blank" rel="noopener" class="hover:underline">+98 919 073 7241</a></li>
+        <li>تلفن: <a href="tel:+989190737241" class="hover:underline ltr">+98 919 073 7241</a></li>
+        <li>واتساپ: <a href="https://wa.me/989190737241" target="_blank" rel="noopener" class="hover:underline ltr">+98 919 073 7241</a></li>
         <li>تلگرام: <a href="https://t.me/Khanzadeh_AH" target="_blank" rel="noopener" class="hover:underline">Khanzadeh_AH</a></li>
         <li>ایمیل: <a href="mailto:khanzadeh78ah@gmail.com" class="hover:underline">khanzadeh78ah@gmail.com</a></li>
       </ul>

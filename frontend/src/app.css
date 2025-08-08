@@ -49,3 +49,10 @@ h1, h2, h3, h4 {
 .lead {
   @apply text-slate-600 dark:text-slate-300;
 }
+
+/* Utility to force left-to-right rendering inside RTL blocks */
+.ltr {
+  direction: ltr;
+  unicode-bidi: plaintext;
+  display: inline-block;
+}
