@@ -1,0 +1,11 @@
+nohup: ignoring input
+
+> frontend@0.0.1 dev
+> vite dev --port 5174
+
+10:50:41 PM [vite] (client) Forced re-optimization of dependencies
+
+  VITE v7.1.1  ready in 1003 ms
+
+  ➜  Local:   http://localhost:5174/
+  ➜  Network: use --host to expose
