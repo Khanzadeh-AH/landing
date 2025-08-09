@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger"
 
 	"landing/backend/internal/config"
 	"landing/backend/internal/handlers"
@@ -10,6 +11,9 @@ import (
 
 // Register wires all HTTP routes.
 func Register(app *fiber.App, cfg config.Config) {
+	// Swagger UI at /swagger/index.html
+	app.Get("/swagger/*", swagger.HandlerDefault)
+
 	api := app.Group("/api")
 
 	// health

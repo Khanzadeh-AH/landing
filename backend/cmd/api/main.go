@@ -1,3 +1,11 @@
+// @title Landing Backend API
+// @version 1.0
+// @description OpenAPI documentation for Landing backend.
+// @BasePath /api
+//
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name X-API-Key
 package main
 
 import (
@@ -13,6 +21,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/gofiber/fiber/v2"
+	_ "landing/backend/docs"
 
 	"landing/backend/internal/config"
 	"landing/backend/internal/db"

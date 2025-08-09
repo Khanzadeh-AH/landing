@@ -7,6 +7,11 @@ import (
 )
 
 // HealthHandler returns a simple OK for liveness/readiness checks.
+// @Summary Health check
+// @Tags system
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Router /healthz [get]
 func HealthHandler(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status": "ok",
