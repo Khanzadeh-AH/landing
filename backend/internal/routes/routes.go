@@ -17,6 +17,10 @@ func Register(app *fiber.App, cfg config.Config) {
 	// version & root aliases
 	api.Get("/version", handlers.VersionHandler(cfg))
 
+	// blogs
+	api.Get("/blogs", handlers.ListBlogsHandler)
+	api.Get("/blogs/:path", handlers.GetBlogByPathHandler)
+
 	// convenience root routes
 	app.Get("/healthz", handlers.HealthHandler)
 	app.Get("/version", handlers.VersionHandler(cfg))

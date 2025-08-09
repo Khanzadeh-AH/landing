@@ -10,10 +10,12 @@ import (
 func ClientFromCtx(c *fiber.Ctx) *ent.Client {
 	v := c.Locals("ent")
 	if v == nil {
-		return nil
+		// Fallback to global client if request-scoped client is missing
+		return GlobalClient()
 	}
 	if client, ok := v.(*ent.Client); ok {
 		return client
 	}
-	return nil
+	// Fallback to global client on type mismatch
+	return GlobalClient()
 }

@@ -39,17 +39,31 @@ func main() {
 		if err != nil {
 			log.Fatalf("database initialization failed: %v", err)
 		}
-		// Inject client into each request context
-		app.Use(func(c *fiber.Ctx) error {
-			c.Locals("ent", client)
-			return c.Next()
-		})
-		// Ensure DB is closed on shutdown
-		defer func() {
+        // Set global client fallback
+        db.SetGlobalClient(client)
+		// Seed development data
+		if cfg.IsDevelopment() {
+			db.SeedDev(ctx, client)
+		}
+        // Inject a live Ent client into each request context (reopen if needed)
+        app.Use(func(c *fiber.Ctx) error {
+            cli, err := db.EnsureClient(c.UserContext(), cfg)
+            if err != nil {
+                return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "database unavailable"})
+            }
+            c.Locals("ent", cli)
+            return c.Next()
+        })
+		// Ensure DB is closed on app shutdown
+		app.Hooks().OnShutdown(func() error {
+			log.Println("OnShutdown: closing Ent DB client...")
 			if err := client.Close(); err != nil {
 				log.Printf("error closing db client: %v", err)
+				return err
 			}
-		}()
+			log.Println("OnShutdown: Ent DB client closed")
+			return nil
+		})
 	}
 
 	// Global middleware

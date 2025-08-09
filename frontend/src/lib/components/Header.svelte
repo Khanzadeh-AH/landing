@@ -6,6 +6,7 @@
     { href: '#services', label: 'خدمات' },
     { href: '#portfolio', label: 'نمونه کارها' },
     { href: '#about', label: 'درباره ما' },
+    { href: '/blog', label: 'بلاگ' },
     { href: '#contact', label: 'تماس با ما' }
   ];
 </script>
