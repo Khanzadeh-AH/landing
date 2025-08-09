@@ -33,7 +33,7 @@ func Register(app *fiber.App, cfg config.Config) {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "*",
 		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",
-		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization, X-API-Key",
 		ExposeHeaders:    "",
 		AllowCredentials: false,
 	}))
@@ -43,4 +43,36 @@ func Register(app *fiber.App, cfg config.Config) {
 
 	// Response compression
 	app.Use(compress.New())
+}
+
+// APIKey returns a middleware that enforces an API key when configured.
+//
+// It checks the following (in order):
+// - Header: X-API-Key
+// - Query param: api_key
+// If cfg.APIKey is empty, the middleware is a no-op (allows all).
+func APIKey(cfg config.Config) fiber.Handler {
+    return func(c *fiber.Ctx) error {
+        // Allow CORS preflight requests to pass through
+        if c.Method() == fiber.MethodOptions {
+            return c.Next()
+        }
+        if cfg.APIKey == "" {
+            // No API key configured; allow all (useful for development)
+            return c.Next()
+        }
+
+        // Prefer header
+        key := c.Get("X-API-Key")
+        if key == "" {
+            // Fallback to query param
+            key = c.Query("api_key")
+        }
+        if key == cfg.APIKey {
+            return c.Next()
+        }
+        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+            "error": "unauthorized",
+        })
+    }
 }

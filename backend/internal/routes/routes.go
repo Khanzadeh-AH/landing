@@ -5,6 +5,7 @@ import (
 
 	"landing/backend/internal/config"
 	"landing/backend/internal/handlers"
+	"landing/backend/internal/middleware"
 )
 
 // Register wires all HTTP routes.
@@ -16,6 +17,9 @@ func Register(app *fiber.App, cfg config.Config) {
 
 	// version & root aliases
 	api.Get("/version", handlers.VersionHandler(cfg))
+
+	// Protect subsequent /api routes with API key (if configured)
+	api.Use(middleware.APIKey(cfg))
 
 	// blogs
 	api.Get("/blogs", handlers.ListBlogsHandler)

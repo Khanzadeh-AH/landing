@@ -16,6 +16,9 @@ type Config struct {
 	// Database
 	DatabaseURL string
 
+	// API key for protecting endpoints
+	APIKey string
+
 	// Build/Version metadata
 	Version    string
 	CommitHash string
@@ -29,6 +32,7 @@ func Load() Config {
 		Env:        strings.ToLower(getEnv("ENV", "development")),
 		Port:       getEnvAsInt("PORT", 8080),
 		DatabaseURL: getEnv("DATABASE_URL", ""),
+		APIKey:     getEnv("API_KEY", ""),
 		Version:    getEnv("VERSION", ""),
 		CommitHash: getEnv("COMMIT_HASH", ""),
 		BuildDate:  getEnv("BUILD_DATE", ""),

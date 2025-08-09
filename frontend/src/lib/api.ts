@@ -1,6 +1,4 @@
-import { env as publicEnv } from '$env/dynamic/public';
-
-export const API_BASE = (publicEnv.PUBLIC_API_BASE?.trim()) || 'http://localhost:8080/api';
+export const API_BASE = '/api';
 
 export async function apiGet<T>(fetchFn: typeof fetch, path: string): Promise<T> {
   const res = await fetchFn(`${API_BASE}${path}`);
