@@ -49,3 +49,40 @@ func GetBlogByPathHandler(c *fiber.Ctx) error {
 	}
 	return c.JSON(item)
 }
+
+// CreateBlogHandler creates a new blog post.
+// Expects JSON body: {"category": string, "text": string, "path": string}
+func CreateBlogHandler(c *fiber.Ctx) error {
+	client := db.ClientFromCtx(c)
+	if client == nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "database client missing"})
+	}
+
+	var req struct {
+		Category string `json:"category"`
+		Text     string `json:"text"`
+		Path     string `json:"path"`
+	}
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "invalid JSON body"})
+	}
+	if req.Category == "" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "category is required"})
+	}
+	if req.Path == "" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "path is required"})
+	}
+
+	created, err := client.Blog.Create().
+		SetCategory(req.Category).
+		SetText(req.Text).
+		SetPath(req.Path).
+		Save(c.UserContext())
+	if err != nil {
+		if ent.IsConstraintError(err) {
+			return c.Status(http.StatusConflict).JSON(fiber.Map{"error": "blog with this path already exists"})
+		}
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+	return c.Status(http.StatusCreated).JSON(created)
+}

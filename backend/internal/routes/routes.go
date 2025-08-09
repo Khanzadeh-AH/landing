@@ -22,6 +22,7 @@ func Register(app *fiber.App, cfg config.Config) {
 	api.Use(middleware.APIKey(cfg))
 
 	// blogs
+	api.Post("/blogs", handlers.CreateBlogHandler)
 	api.Get("/blogs", handlers.ListBlogsHandler)
 	api.Get("/blogs/:path", handlers.GetBlogByPathHandler)
 
