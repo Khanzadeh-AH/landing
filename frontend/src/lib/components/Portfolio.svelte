@@ -30,13 +30,13 @@
       <p class="lead mt-2 text-slate-600 dark:text-slate-300">منتخبی از دستاوردهای اخیر ما</p>
     </div>
 
-    <div class="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3" role="list">
-      {#each projects as p}
-        <article class="group card p-0 overflow-hidden flex flex-col rounded-2xl border border-slate-200/60 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 backdrop-blur shadow-sm transition-all hover:shadow-lg hover:-translate-y-1" use:reveal role="listitem">
+    <div class="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3" role="list" aria-label="پروژه‌ها">
+      {#each projects as p, i}
+        <article class="group card p-0 overflow-hidden flex flex-col rounded-2xl border border-slate-200/60 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 backdrop-blur shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 motion-reduce:hover:translate-y-0 relative focus-within:ring-2 focus-within:ring-primary-500/60 focus-within:ring-offset-2 focus-within:ring-offset-transparent" use:reveal role="listitem" aria-labelledby={'proj-' + i}>
           <!-- Decorative header strip -->
           <div class="h-1.5 w-full bg-gradient-to-l from-primary-500/60 via-cyan-400/60 to-primary-500/60"></div>
           <div class="p-6">
-            <h3 class="text-xl font-semibold">{p.title}</h3>
+            <h3 class="text-xl font-semibold" id={'proj-' + i}>{p.title}</h3>
             <div class="mt-3 flex flex-wrap gap-2 text-xs text-slate-600 dark:text-slate-300">
               {#each p.stack as s}
                 <span class="badge">{s}</span>

@@ -12,7 +12,7 @@
     <div class="text-right" use:reveal>
       <span class="badge">شرکت توسعه نرم‌افزار و هوش مصنوعی</span>
       <h1 class="mt-4 text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">
-        رشد فروش و بهره‌وری با راهکارهای هوشمند اختصاصی
+        رشد فروش و بهره‌وری با <span class="bg-gradient-to-l from-primary-500 to-cyan-400 bg-clip-text text-transparent">راهکارهای هوشمند</span> اختصاصی
       </h1>
       <p class="lead mt-4 max-w-prose text-slate-700 dark:text-slate-300">
         در تهران‌بات، تیم ما با ترکیب توسعه نرم‌افزار مدرن و هوش مصنوعی عملیاتی، به شما کمک می‌کند سریع‌تر به نتایج تجاری برسید — با ریسک کمتر و بازگشت سرمایه‌ بالاتر.
