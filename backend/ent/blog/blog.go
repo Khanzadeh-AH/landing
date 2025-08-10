@@ -17,6 +17,8 @@ const (
 	FieldText = "text"
 	// FieldPath holds the string denoting the path field in the database.
 	FieldPath = "path"
+	// FieldEmbedding holds the string denoting the embedding field in the database.
+	FieldEmbedding = "embedding"
 	// Table holds the table name of the blog in the database.
 	Table = "blogs"
 )
@@ -27,6 +29,7 @@ var Columns = []string{
 	FieldCategory,
 	FieldText,
 	FieldPath,
+	FieldEmbedding,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

@@ -31,16 +31,18 @@ const (
 // BlogMutation represents an operation that mutates the Blog nodes in the graph.
 type BlogMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	category      *string
-	text          *string
-	_path         *string
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Blog, error)
-	predicates    []predicate.Blog
+	op              Op
+	typ             string
+	id              *int
+	category        *string
+	text            *string
+	_path           *string
+	embedding       *[]float32
+	appendembedding []float32
+	clearedFields   map[string]struct{}
+	done            bool
+	oldValue        func(context.Context) (*Blog, error)
+	predicates      []predicate.Blog
 }
 
 var _ ent.Mutation = (*BlogMutation)(nil)
@@ -249,6 +251,71 @@ func (m *BlogMutation) ResetPath() {
 	m._path = nil
 }
 
+// SetEmbedding sets the "embedding" field.
+func (m *BlogMutation) SetEmbedding(f []float32) {
+	m.embedding = &f
+	m.appendembedding = nil
+}
+
+// Embedding returns the value of the "embedding" field in the mutation.
+func (m *BlogMutation) Embedding() (r []float32, exists bool) {
+	v := m.embedding
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEmbedding returns the old "embedding" field's value of the Blog entity.
+// If the Blog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BlogMutation) OldEmbedding(ctx context.Context) (v []float32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEmbedding is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEmbedding requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEmbedding: %w", err)
+	}
+	return oldValue.Embedding, nil
+}
+
+// AppendEmbedding adds f to the "embedding" field.
+func (m *BlogMutation) AppendEmbedding(f []float32) {
+	m.appendembedding = append(m.appendembedding, f...)
+}
+
+// AppendedEmbedding returns the list of values that were appended to the "embedding" field in this mutation.
+func (m *BlogMutation) AppendedEmbedding() ([]float32, bool) {
+	if len(m.appendembedding) == 0 {
+		return nil, false
+	}
+	return m.appendembedding, true
+}
+
+// ClearEmbedding clears the value of the "embedding" field.
+func (m *BlogMutation) ClearEmbedding() {
+	m.embedding = nil
+	m.appendembedding = nil
+	m.clearedFields[blog.FieldEmbedding] = struct{}{}
+}
+
+// EmbeddingCleared returns if the "embedding" field was cleared in this mutation.
+func (m *BlogMutation) EmbeddingCleared() bool {
+	_, ok := m.clearedFields[blog.FieldEmbedding]
+	return ok
+}
+
+// ResetEmbedding resets all changes to the "embedding" field.
+func (m *BlogMutation) ResetEmbedding() {
+	m.embedding = nil
+	m.appendembedding = nil
+	delete(m.clearedFields, blog.FieldEmbedding)
+}
+
 // Where appends a list predicates to the BlogMutation builder.
 func (m *BlogMutation) Where(ps ...predicate.Blog) {
 	m.predicates = append(m.predicates, ps...)
@@ -283,7 +350,7 @@ func (m *BlogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BlogMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.category != nil {
 		fields = append(fields, blog.FieldCategory)
 	}
@@ -292,6 +359,9 @@ func (m *BlogMutation) Fields() []string {
 	}
 	if m._path != nil {
 		fields = append(fields, blog.FieldPath)
+	}
+	if m.embedding != nil {
+		fields = append(fields, blog.FieldEmbedding)
 	}
 	return fields
 }
@@ -307,6 +377,8 @@ func (m *BlogMutation) Field(name string) (ent.Value, bool) {
 		return m.Text()
 	case blog.FieldPath:
 		return m.Path()
+	case blog.FieldEmbedding:
+		return m.Embedding()
 	}
 	return nil, false
 }
@@ -322,6 +394,8 @@ func (m *BlogMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldText(ctx)
 	case blog.FieldPath:
 		return m.OldPath(ctx)
+	case blog.FieldEmbedding:
+		return m.OldEmbedding(ctx)
 	}
 	return nil, fmt.Errorf("unknown Blog field %s", name)
 }
@@ -352,6 +426,13 @@ func (m *BlogMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPath(v)
 		return nil
+	case blog.FieldEmbedding:
+		v, ok := value.([]float32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEmbedding(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Blog field %s", name)
 }
@@ -381,7 +462,11 @@ func (m *BlogMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *BlogMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(blog.FieldEmbedding) {
+		fields = append(fields, blog.FieldEmbedding)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -394,6 +479,11 @@ func (m *BlogMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *BlogMutation) ClearField(name string) error {
+	switch name {
+	case blog.FieldEmbedding:
+		m.ClearEmbedding()
+		return nil
+	}
 	return fmt.Errorf("unknown Blog nullable field %s", name)
 }
 
@@ -409,6 +499,9 @@ func (m *BlogMutation) ResetField(name string) error {
 		return nil
 	case blog.FieldPath:
 		m.ResetPath()
+		return nil
+	case blog.FieldEmbedding:
+		m.ResetEmbedding()
 		return nil
 	}
 	return fmt.Errorf("unknown Blog field %s", name)

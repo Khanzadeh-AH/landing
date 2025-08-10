@@ -37,6 +37,12 @@ func (_c *BlogCreate) SetPath(v string) *BlogCreate {
 	return _c
 }
 
+// SetEmbedding sets the "embedding" field.
+func (_c *BlogCreate) SetEmbedding(v []float32) *BlogCreate {
+	_c.mutation.SetEmbedding(v)
+	return _c
+}
+
 // Mutation returns the BlogMutation object of the builder.
 func (_c *BlogCreate) Mutation() *BlogMutation {
 	return _c.mutation
@@ -127,6 +133,10 @@ func (_c *BlogCreate) createSpec() (*Blog, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Path(); ok {
 		_spec.SetField(blog.FieldPath, field.TypeString, value)
 		_node.Path = value
+	}
+	if value, ok := _c.mutation.Embedding(); ok {
+		_spec.SetField(blog.FieldEmbedding, field.TypeJSON, value)
+		_node.Embedding = value
 	}
 	return _node, _spec
 }

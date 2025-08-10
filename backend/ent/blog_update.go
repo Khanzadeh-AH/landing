@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 )
 
@@ -66,6 +67,24 @@ func (_u *BlogUpdate) SetNillablePath(v *string) *BlogUpdate {
 	if v != nil {
 		_u.SetPath(*v)
 	}
+	return _u
+}
+
+// SetEmbedding sets the "embedding" field.
+func (_u *BlogUpdate) SetEmbedding(v []float32) *BlogUpdate {
+	_u.mutation.SetEmbedding(v)
+	return _u
+}
+
+// AppendEmbedding appends value to the "embedding" field.
+func (_u *BlogUpdate) AppendEmbedding(v []float32) *BlogUpdate {
+	_u.mutation.AppendEmbedding(v)
+	return _u
+}
+
+// ClearEmbedding clears the value of the "embedding" field.
+func (_u *BlogUpdate) ClearEmbedding() *BlogUpdate {
+	_u.mutation.ClearEmbedding()
 	return _u
 }
 
@@ -137,6 +156,17 @@ func (_u *BlogUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Path(); ok {
 		_spec.SetField(blog.FieldPath, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.Embedding(); ok {
+		_spec.SetField(blog.FieldEmbedding, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedEmbedding(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, blog.FieldEmbedding, value)
+		})
+	}
+	if _u.mutation.EmbeddingCleared() {
+		_spec.ClearField(blog.FieldEmbedding, field.TypeJSON)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{blog.Label}
@@ -196,6 +226,24 @@ func (_u *BlogUpdateOne) SetNillablePath(v *string) *BlogUpdateOne {
 	if v != nil {
 		_u.SetPath(*v)
 	}
+	return _u
+}
+
+// SetEmbedding sets the "embedding" field.
+func (_u *BlogUpdateOne) SetEmbedding(v []float32) *BlogUpdateOne {
+	_u.mutation.SetEmbedding(v)
+	return _u
+}
+
+// AppendEmbedding appends value to the "embedding" field.
+func (_u *BlogUpdateOne) AppendEmbedding(v []float32) *BlogUpdateOne {
+	_u.mutation.AppendEmbedding(v)
+	return _u
+}
+
+// ClearEmbedding clears the value of the "embedding" field.
+func (_u *BlogUpdateOne) ClearEmbedding() *BlogUpdateOne {
+	_u.mutation.ClearEmbedding()
 	return _u
 }
 
@@ -296,6 +344,17 @@ func (_u *BlogUpdateOne) sqlSave(ctx context.Context) (_node *Blog, err error) {
 	}
 	if value, ok := _u.mutation.Path(); ok {
 		_spec.SetField(blog.FieldPath, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Embedding(); ok {
+		_spec.SetField(blog.FieldEmbedding, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedEmbedding(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, blog.FieldEmbedding, value)
+		})
+	}
+	if _u.mutation.EmbeddingCleared() {
+		_spec.ClearField(blog.FieldEmbedding, field.TypeJSON)
 	}
 	_node = &Blog{config: _u.config}
 	_spec.Assign = _node.assignValues

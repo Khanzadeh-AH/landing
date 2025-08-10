@@ -8,7 +8,9 @@ export type Blog = {
   path: string;
 };
 
+export type BlogWithSimilar = { blog: Blog; similar: Blog[] };
+
 export const load: PageLoad = async ({ fetch, params }) => {
-  const blog = await apiGet<Blog>(fetch, `/blogs/${encodeURIComponent(params.path)}`);
-  return { blog };
+  const res = await apiGet<BlogWithSimilar>(fetch, `/blogs/${encodeURIComponent(params.path)}`);
+  return { blog: res.blog, similar: res.similar };
 };

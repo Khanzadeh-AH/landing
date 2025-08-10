@@ -14,6 +14,9 @@ func (Blog) Fields() []ent.Field {
 		field.String("category").NotEmpty(),
 		field.Text("text"),
 		field.String("path").NotEmpty().Unique(),
+		// Embedding stores a vector representation for similarity search (offline-generated).
+        // Note: Nillable() is not supported for JSON in this Ent version; Optional() suffices.
+        field.JSON("embedding", []float32{}).Optional(),
 	}
 }
 

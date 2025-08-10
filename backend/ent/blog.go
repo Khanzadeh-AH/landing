@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"landing/backend/ent/blog"
 	"strings"
@@ -21,7 +22,9 @@ type Blog struct {
 	// Text holds the value of the "text" field.
 	Text string `json:"text,omitempty"`
 	// Path holds the value of the "path" field.
-	Path         string `json:"path,omitempty"`
+	Path string `json:"path,omitempty"`
+	// Embedding holds the value of the "embedding" field.
+	Embedding    []float32 `json:"embedding,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -30,6 +33,8 @@ func (*Blog) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case blog.FieldEmbedding:
+			values[i] = new([]byte)
 		case blog.FieldID:
 			values[i] = new(sql.NullInt64)
 		case blog.FieldCategory, blog.FieldText, blog.FieldPath:
@@ -72,6 +77,14 @@ func (_m *Blog) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field path", values[i])
 			} else if value.Valid {
 				_m.Path = value.String
+			}
+		case blog.FieldEmbedding:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field embedding", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Embedding); err != nil {
+					return fmt.Errorf("unmarshal field embedding: %w", err)
+				}
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -117,6 +130,9 @@ func (_m *Blog) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("path=")
 	builder.WriteString(_m.Path)
+	builder.WriteString(", ")
+	builder.WriteString("embedding=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Embedding))
 	builder.WriteByte(')')
 	return builder.String()
 }

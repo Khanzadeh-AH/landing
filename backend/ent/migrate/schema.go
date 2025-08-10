@@ -14,6 +14,7 @@ var (
 		{Name: "category", Type: field.TypeString},
 		{Name: "text", Type: field.TypeString, Size: 2147483647},
 		{Name: "path", Type: field.TypeString, Unique: true},
+		{Name: "embedding", Type: field.TypeJSON, Nullable: true},
 	}
 	// BlogsTable holds the schema information for the "blogs" table.
 	BlogsTable = &schema.Table{

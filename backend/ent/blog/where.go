@@ -263,6 +263,16 @@ func PathContainsFold(v string) predicate.Blog {
 	return predicate.Blog(sql.FieldContainsFold(FieldPath, v))
 }
 
+// EmbeddingIsNil applies the IsNil predicate on the "embedding" field.
+func EmbeddingIsNil() predicate.Blog {
+	return predicate.Blog(sql.FieldIsNull(FieldEmbedding))
+}
+
+// EmbeddingNotNil applies the NotNil predicate on the "embedding" field.
+func EmbeddingNotNil() predicate.Blog {
+	return predicate.Blog(sql.FieldNotNull(FieldEmbedding))
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Blog) predicate.Blog {
 	return predicate.Blog(sql.AndPredicates(predicates...))

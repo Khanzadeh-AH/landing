@@ -1,0 +1,26 @@
+# Do not send local secrets or VCS to Docker build context
+.env
+.env.*
+.git
+.gitignore
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Build artifacts
+bin/
+build/
+dist/
+tmp/
+coverage/
+*.log
+
+# Node-related (in case of mixed repos)
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db

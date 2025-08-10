@@ -14,6 +14,12 @@
     return html.replace(/<[^>]*>/g, ' ');
   }
 
+  function excerpt(html: string, max = 160): string {
+    const text = stripHtml(html).replace(/\s+/g, ' ').trim();
+    if (text.length <= max) return text;
+    return text.slice(0, max).trim() + '…';
+  }
+
   function readingTime(html: string): number {
     const words = stripHtml(html).trim().split(/\s+/).filter(Boolean).length;
     return Math.max(1, Math.round(words / 200)); // ~200 wpm
@@ -96,7 +102,7 @@
               <span class="text-[11px] text-slate-400">{faNum(readingTime(b.text))} دقیقه مطالعه</span>
             </div>
             <h2 class="font-extrabold text-base mb-2 line-clamp-2 group-hover:underline">{b.path}</h2>
-            <div class="prose prose-slate dark:prose-invert line-clamp-3 max-w-none">{@html b.text}</div>
+            <p class="text-sm text-slate-600 dark:text-slate-300 line-clamp-3">{excerpt(b.text, 180)}</p>
           </a>
         </li>
       {/each}
