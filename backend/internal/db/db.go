@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib" // register pgx with database/sql
+	_ "github.com/lib/pq" // register lib/pq with database/sql
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 
@@ -21,10 +21,15 @@ func OpenClient(ctx context.Context, cfg config.Config) (*ent.Client, error) {
 		return nil, fmt.Errorf("DATABASE_URL is not set")
 	}
 
-	sqldb, err := sql.Open("pgx", cfg.DatabaseURL)
+	// Use lib/pq driver
+	sqldb, err := sql.Open("postgres", cfg.DatabaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed opening connection to postgres: %w", err)
 	}
+	// Reasonable pool defaults; adjust as needed via env in the future.
+	sqldb.SetMaxOpenConns(10)
+	sqldb.SetMaxIdleConns(5)
+	sqldb.SetConnMaxLifetime(1 * time.Hour)
 	// Validate the connection early to catch DSN or network issues.
 	{
 		ctxPing, cancel := context.WithTimeout(ctx, 5*time.Second)
