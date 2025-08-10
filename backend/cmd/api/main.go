@@ -52,7 +52,7 @@ func main() {
         db.SetGlobalClient(client)
 		// Seed development data
 		if cfg.IsDevelopment() {
-			db.SeedDev(ctx, client)
+			db.SeedDev(ctx, client, cfg)
 		}
         // Attach the initialized Ent client to each request (kept open for app lifetime).
         app.Use(func(c *fiber.Ctx) error {

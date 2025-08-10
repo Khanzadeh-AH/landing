@@ -3,23 +3,17 @@ package db
 import (
 	"context"
 	"log"
+	"strings"
 	"time"
 
 	"landing/backend/ent"
+	"landing/backend/internal/config"
+	"landing/backend/internal/sanitize"
 )
 
-// SeedDev inserts development seed data if none exists.
-func SeedDev(ctx context.Context, client *ent.Client) {
-	// Seed blogs
-	count, err := client.Blog.Query().Count(ctx)
-	if err != nil {
-		log.Printf("seed: count blogs failed: %v", err)
-		return
-	}
-	if count > 0 {
-		return
-	}
-
+// SeedDev inserts or updates development seed data.
+func SeedDev(ctx context.Context, client *ent.Client, cfg config.Config) {
+	// Base sample items
 	blogs := []struct {
 		Category string
 		Path     string
@@ -42,15 +36,50 @@ func SeedDev(ctx context.Context, client *ent.Client) {
 		},
 	}
 
-	batch := make([]*ent.BlogCreate, 0, len(blogs))
-	for _, b := range blogs {
-		batch = append(batch, client.Blog.Create().SetCategory(b.Category).SetPath(b.Path).SetText(b.Text))
-	}
+	// Append the provided full-HTML sample article (with simple placeholder replacements)
+	rep := strings.NewReplacer(
+		"{SITE_NAME}", cfg.AppName,
+		"{AUTHOR}", "تهران‌بات",
+		"{AUTHOR_BIO}", "تیم هوش مصنوعی و نرم‌افزار تهران‌بات",
+		"{PUBLISH_DATE}", time.Now().Format(time.RFC3339),
+		"{PUBLISH_DATE_FORMATTED}", time.Now().Format("2006-01-02"),
+		"{MODIFIED_DATE}", time.Now().Format(time.RFC3339),
+		"{MODIFIED_DATE_FORMATTED}", time.Now().Format("2006-01-02"),
+		"{READING_TIME}", "8",
+	)
+	blogs = append(blogs, struct {
+		Category string
+		Path     string
+		Text     string
+	}{
+		Category: "ai",
+		Path:     "ai-industry-fa",
+		Text:     rep.Replace(SampleAIIndustryFA),
+	})
+
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
-	if _, err := client.Blog.CreateBulk(batch...).Save(ctx); err != nil {
-		log.Printf("seed: create blogs failed: %v", err)
-		return
+
+	inserted := 0
+	for _, b := range blogs {
+		// Sanitize/normalize HTML before storing
+		safe := sanitize.SanitizeBlogHTML(b.Text)
+		_, err := client.Blog.Create().
+			SetCategory(b.Category).
+			SetPath(b.Path).
+			SetText(safe).
+			Save(ctx)
+		if err != nil {
+			if ent.IsConstraintError(err) {
+				// Already exists; skip
+				continue
+			}
+			log.Printf("seed: create blog '%s' failed: %v", b.Path, err)
+			continue
+		}
+		inserted++
 	}
-	log.Printf("seed: inserted %d blogs", len(blogs))
+	if inserted > 0 {
+		log.Printf("seed: inserted %d blogs", inserted)
+	}
 }

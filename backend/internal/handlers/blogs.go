@@ -67,7 +67,15 @@ func sanitizeAndExtractBody(in string) string {
 
 	// Sanitize with a UGC policy (allows common formatting tags but strips scripts, iframes, etc.).
 	p := bluemonday.UGCPolicy()
-	// Open external links in a new tab and add rel attributes.
+	// Allow structural/article-related elements commonly used in blog posts.
+	p.AllowElements("article", "section", "figure", "figcaption", "footer", "time")
+	// Allow useful attributes on common elements.
+	p.AllowAttrs("class", "id").OnElements("div", "span", "p", "article", "section", "figure", "figcaption", "h1", "h2", "h3", "h4", "ul", "ol", "li")
+	// Microdata attributes for SEO snippets if present in content
+	p.AllowAttrs("itemprop", "itemscope", "itemtype").OnElements("article", "div", "span", "time")
+	// Images: allow common safe attributes
+	p.AllowAttrs("src", "alt", "title", "width", "height", "loading", "decoding").OnElements("img")
+	// Links: keep defaults, ensure target/rel are permitted (UGCPolicy already handles href). Add target _blank for external links.
 	p.AddTargetBlankToFullyQualifiedLinks(true)
 	// If in the future you need to allow specific iframes (e.g., YouTube), whitelist here explicitly.
 	return p.Sanitize(content)
@@ -139,11 +147,11 @@ func GetBlogByPathHandler(c *fiber.Ctx) error {
 			item.Embedding = genA
 		}
 		a = genA
-	} else if item.Embedding != nil && len(item.Embedding) > 0 {
+	} else if len(item.Embedding) > 0 {
 		// Fallback to stored embedding if generation failed for some reason
 		a = item.Embedding
 	}
-	if a == nil || len(a) == 0 {
+	if len(a) == 0 {
 		return c.JSON(fiber.Map{"blog": item, "similar": []any{}})
 	}
 
