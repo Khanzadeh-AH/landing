@@ -32,7 +32,8 @@ ARG BUILD_DATE=unknown
 
 # Produce a small, reproducible binary
 RUN --mount=type=cache,target=/root/.cache/go-build \
-    go build -trimpath -ldflags "-s -w" -o /out/server ./cmd/api
+    go build -trimpath -ldflags "-s -w" -o /out/server ./cmd/api && \
+    go build -trimpath -ldflags "-s -w" -o /out/migrate ./cmd/migrate
 
 # -----------------------------
 # Runtime image
@@ -56,6 +57,7 @@ ENV APP_NAME=${APP_NAME} \
 
 # Copy binary from builder
 COPY --from=builder /out/server /app/server
+COPY --from=builder /out/migrate /app/migrate
 
 # Run as non-root user provided by the distroless image
 USER nonroot:nonroot
