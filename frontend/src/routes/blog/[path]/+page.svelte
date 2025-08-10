@@ -86,7 +86,7 @@
   });
 </script>
 
-<section class="container-rtl py-10">
+<section id="main-content" class="container-rtl py-10">
   <!-- Top reading progress bar -->
   <div class="fixed top-0 inset-x-0 h-1 bg-transparent z-40">
     <div class="h-full bg-primary-500/80" style={`width:${progress}%; transition: width 100ms linear;`}></div>

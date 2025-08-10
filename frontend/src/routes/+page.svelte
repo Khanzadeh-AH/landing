@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Header from '$lib/components/Header.svelte';
+  
   import Hero from '$lib/components/Hero.svelte';
   import Services from '$lib/components/Services.svelte';
   import Why from '$lib/components/Why.svelte';
@@ -15,8 +15,10 @@
   const form = $derived($page.form as any);
   const values = $derived(form?.values || {});
 </script>
-
-<Header />
+<svelte:head>
+  <meta name="keywords" content="tehranbot, tehran bot, تهران بات, تهران ربات" />
+</svelte:head>
+<!-- Header is provided globally in +layout.svelte -->
 <main id="main-content">
   <Hero />
   <Services />
@@ -24,6 +26,19 @@
   <Portfolio />
   <Process />
   <Testimonials />
+
+  <section id="blog" class="section" aria-labelledby="blog-heading">
+    <div class="container-rtl" use:reveal>
+      <h2 id="blog-heading" class="text-3xl md:text-4xl">از بلاگ ما</h2>
+      <p class="lead mt-2">برای مطالعه نکات، راهنماها و نمونه‌های موفق، به
+        <a href="/blog" class="text-primary-600 hover:underline">بلاگ تهران‌بات</a>
+        سر بزنید.
+      </p>
+      <div class="mt-4">
+        <a href="/blog" class="hover:underline">مشاهده همه مطالب بلاگ</a>
+      </div>
+    </div>
+  </section>
 
   <section id="contact" class="section">
     <div class="container-rtl grid gap-10 md:grid-cols-2 items-start">

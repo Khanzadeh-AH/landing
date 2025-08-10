@@ -1,6 +1,7 @@
 <script lang="ts">
     import '../app.css';
     import favicon from '$lib/assets/favicon.svg';
+    import Header from '$lib/components/Header.svelte';
     import { env as publicEnv } from '$env/dynamic/public';
 
     let { children } = $props();
@@ -88,4 +89,5 @@
     <div class="absolute -bottom-24 -left-20 h-[50vh] w-[50vh] rounded-full bg-cyan-400/10 blur-[80px]"></div>
 </div>
 
+<Header />
 {@render children?.()}

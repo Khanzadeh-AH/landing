@@ -51,7 +51,7 @@
   }
 </script>
 
-<section class="container-rtl py-10">
+<section id="main-content" class="container-rtl py-10">
   <header class="mb-6">
     <h1 class="text-3xl font-extrabold tracking-tight mb-2">بلاگ</h1>
     <p class="text-slate-500 text-sm">مطالب جدید و به‌روز را در اینجا بخوانید.</p>
