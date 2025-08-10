@@ -4,17 +4,20 @@ import (
 	"bytes"
 	"math"
 	"net/http"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
+	"time"
 
 	"landing/backend/ent"
 	"landing/backend/ent/blog"
 	"landing/backend/internal/ai/embeddings"
 	"landing/backend/internal/config"
 	"landing/backend/internal/db"
+	"landing/backend/internal/sanitize"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/microcosm-cc/bluemonday"
 	"golang.org/x/net/html"
 )
 
@@ -65,20 +68,64 @@ func sanitizeAndExtractBody(in string) string {
 		content = trimmed
 	}
 
-	// Sanitize with a UGC policy (allows common formatting tags but strips scripts, iframes, etc.).
-	p := bluemonday.UGCPolicy()
-	// Allow structural/article-related elements commonly used in blog posts.
-	p.AllowElements("article", "section", "figure", "figcaption", "footer", "time")
-	// Allow useful attributes on common elements.
-	p.AllowAttrs("class", "id").OnElements("div", "span", "p", "article", "section", "figure", "figcaption", "h1", "h2", "h3", "h4", "ul", "ol", "li")
-	// Microdata attributes for SEO snippets if present in content
-	p.AllowAttrs("itemprop", "itemscope", "itemtype").OnElements("article", "div", "span", "time")
-	// Images: allow common safe attributes
-	p.AllowAttrs("src", "alt", "title", "width", "height", "loading", "decoding").OnElements("img")
-	// Links: keep defaults, ensure target/rel are permitted (UGCPolicy already handles href). Add target _blank for external links.
-	p.AddTargetBlankToFullyQualifiedLinks(true)
-	// If in the future you need to allow specific iframes (e.g., YouTube), whitelist here explicitly.
-	return p.Sanitize(content)
+	// Sanitize with the shared policy in internal/sanitize (which also allows JSON-LD scripts).
+	return sanitize.SanitizeBlogHTML(content)
+}
+
+// replacePlaceholders replaces known placeholders of the form {TOKEN} using the provided map.
+func replacePlaceholders(in string, values map[string]string) string {
+	if len(values) == 0 || strings.TrimSpace(in) == "" {
+		return in
+	}
+	// Build a replacer for all keys in one pass.
+	parts := make([]string, 0, len(values)*2)
+	for k, v := range values {
+		parts = append(parts, k, v)
+	}
+	r := strings.NewReplacer(parts...)
+	return r.Replace(in)
+}
+
+var tagRe = regexp.MustCompile(`<[^>]+>`) // naive HTML tag stripper
+
+func wordCountFromHTML(htmlStr string) int {
+	text := tagRe.ReplaceAllString(htmlStr, " ")
+	fields := strings.Fields(text)
+	return len(fields)
+}
+
+func computeReadingTimeMinutes(htmlStr string) int {
+	words := wordCountFromHTML(htmlStr)
+	if words == 0 {
+		return 1
+	}
+	m := int(math.Ceil(float64(words) / 200.0))
+	if m < 1 {
+		m = 1
+	}
+	return m
+}
+
+func buildCanonicalURL(base, path string) string {
+	b := strings.TrimRight(base, "/ ")
+	p := path
+	if !strings.HasPrefix(p, "/") {
+		p = "/" + p
+	}
+	if b == "" {
+		return p
+	}
+	return b + p
+}
+
+func ensureCTA(htmlStr string) string {
+	// If CTA already present (by class or by contact link), do nothing.
+	if strings.Contains(htmlStr, "cta-section") || strings.Contains(htmlStr, "href=\"/contact\"") {
+		return htmlStr
+	}
+	cta := `
+<section class="cta-section"><div class="cta-container"><h3>آماده شروع هستید؟</h3><p>برای مشاوره و شروع همکاری با ما در ارتباط باشید.</p><div class="cta-buttons"><a href="/contact" class="cta-button primary">تماس با ما</a></div></div></section>`
+	return htmlStr + cta
 }
 
 // ListBlogsHandler returns blogs, optionally filtered by category via query param `category`.
@@ -230,12 +277,48 @@ func CreateBlogHandler(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "path is required"})
 	}
 
-	// Allow full HTML documents by extracting <body> and sanitizing content before storing.
-	processed := sanitizeAndExtractBody(req.Text)
+	cfg := config.Load()
+
+	// First, get a sanitized body (without replacements) to estimate reading time accurately.
+	sanitizedForRT := sanitizeAndExtractBody(req.Text)
+	readingMinutes := computeReadingTimeMinutes(sanitizedForRT)
+
+	// Build placeholder map using config and computed values.
+	now := time.Now().UTC()
+	isoNow := now.Format(time.RFC3339)
+	dateFmt := now.Format("2006-01-02")
+	canonical := buildCanonicalURL(cfg.SiteBaseURL, req.Path)
+
+	placeholders := map[string]string{
+		"{SITE_NAME}":               cfg.SiteName,
+		"{KEYWORDS}":                "",
+		"{AUTHOR}":                  cfg.AuthorName,
+		"{FEATURED_IMAGE}":          cfg.DefaultFeaturedImage,
+		"{CANONICAL_URL}":           canonical,
+		"{SCHEMA_JSON}":             "", // if present in body, leave empty
+		"{PUBLISH_DATE}":            isoNow,
+		"{MODIFIED_DATE}":           isoNow,
+		"{CATEGORY}":                req.Category,
+		"{TAGS}":                    "",
+		"{PUBLISH_DATE_FORMATTED}":  dateFmt,
+		"{MODIFIED_DATE_FORMATTED}": dateFmt,
+		"{READING_TIME}":            strconv.Itoa(readingMinutes),
+		"{AUTHOR_BIO}":              cfg.AuthorBio,
+		"{SITE_LOGO}":               cfg.SiteLogo,
+	}
+
+	// Perform replacements on the raw input to preserve attributes like datetime.
+	replacedRaw := replacePlaceholders(req.Text, placeholders)
+
+	// Sanitize and keep only body-safe content.
+	processed := sanitize.SanitizeBlogHTML(replacedRaw)
+
+	// Ensure CTA exists at the end of the HTML content.
+	processed = ensureCTA(processed)
 
 	// Generate offline embedding for the content (best-effort)
 	var emb []float32
-	if e, err := embeddings.GenerateEmbedding(c.UserContext(), config.Load(), processed); err == nil && e != nil {
+	if e, err := embeddings.GenerateEmbedding(c.UserContext(), cfg, processed); err == nil && e != nil {
 		emb = e
 	}
 

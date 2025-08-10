@@ -3,11 +3,11 @@
   let scrolled = false;
   const nav = [
     { href: '/#home', label: 'خانه' },
-    { href: '/#services', label: 'خدمات' },
+    { href: '/services', label: 'خدمات' },
     { href: '/#portfolio', label: 'نمونه کارها' },
     { href: '/#about', label: 'درباره ما' },
     { href: '/blog', label: 'بلاگ' },
-    { href: '/#contact', label: 'تماس با ما' }
+    { href: '/contact', label: 'تماس با ما' }
   ];
 </script>
 
@@ -27,7 +27,7 @@
           <span aria-hidden="true" class="absolute -bottom-1 right-0 left-0 h-px scale-x-0 origin-center bg-primary-600 transition-transform group-hover:scale-x-100"></span>
         </a>
       {/each}
-      <a href="/#contact" class="btn-primary">مشاوره رایگان</a>
+      <a href="/contact" class="btn-primary">مشاوره رایگان</a>
       <span class="hidden lg:inline-flex items-center gap-1 rounded-full border border-amber-300/60 bg-amber-50/70 text-amber-800 dark:border-amber-300/20 dark:bg-amber-400/10 dark:text-amber-200 px-2 py-1 text-[11px]">
         ظرفیت این ماه محدود است
       </span>
@@ -46,7 +46,7 @@
         {#each nav as item}
           <a href={item.href} class="py-3 rounded-lg hover:bg-slate-100/70 dark:hover:bg-slate-800/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500" on:click={() => (open = false)}>{item.label}</a>
         {/each}
-        <a href="/#contact" class="btn-primary" on:click={() => (open = false)}>مشاوره رایگان</a>
+        <a href="/contact" class="btn-primary" on:click={() => (open = false)}>مشاوره رایگان</a>
         <div class="text-xs text-amber-600 dark:text-amber-300 mt-2">میانگین پاسخ‌گویی: کمتر از ۲ ساعت</div>
       </div>
     </div>

@@ -4,6 +4,8 @@ const BASE = 'https://tehranbot.me';
 
 const routes = [
   '/',
+  '/services',
+  '/contact'
 ];
 
 export const GET: RequestHandler = async () => {

@@ -2,6 +2,7 @@ package sanitize
 
 import (
 	"bytes"
+	"regexp"
 	"strings"
 
 	"github.com/microcosm-cc/bluemonday"
@@ -52,5 +53,8 @@ func SanitizeBlogHTML(in string) string {
 	p.AllowAttrs("itemprop", "itemscope", "itemtype").OnElements("article", "div", "span", "time")
 	p.AllowAttrs("src", "alt", "title", "width", "height", "loading", "decoding").OnElements("img")
 	p.AddTargetBlankToFullyQualifiedLinks(true)
+	// Allow JSON-LD scripts specifically (but no other scripts)
+	p.AllowElements("script")
+	p.AllowAttrs("type").Matching(regexp.MustCompile(`(?i)^application/ld\+json$`)).OnElements("script")
 	return p.Sanitize(content)
 }

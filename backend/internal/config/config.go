@@ -9,9 +9,9 @@ import (
 
 // Config holds application configuration.
 type Config struct {
-	AppName    string
-	Env        string
-	Port       int
+	AppName string
+	Env     string
+	Port    int
 
 	// Database
 	DatabaseURL string
@@ -23,19 +23,35 @@ type Config struct {
 	Version    string
 	CommitHash string
 	BuildDate  string
+
+	// Site metadata for blog placeholder replacements
+	SiteName             string
+	SiteBaseURL          string
+	SiteLogo             string
+	DefaultFeaturedImage string
+	AuthorName           string
+	AuthorBio            string
 }
 
 // Load reads configuration from environment variables with defaults.
 func Load() Config {
 	cfg := Config{
-		AppName:    getEnv("APP_NAME", "landing-backend"),
-		Env:        strings.ToLower(getEnv("ENV", "development")),
-		Port:       getEnvAsInt("PORT", 8080),
+		AppName:     getEnv("APP_NAME", "landing-backend"),
+		Env:         strings.ToLower(getEnv("ENV", "development")),
+		Port:        getEnvAsInt("PORT", 8080),
 		DatabaseURL: getEnv("DATABASE_URL", ""),
-		APIKey:     getEnv("API_KEY", ""),
-		Version:    getEnv("VERSION", ""),
-		CommitHash: getEnv("COMMIT_HASH", ""),
-		BuildDate:  getEnv("BUILD_DATE", ""),
+		APIKey:      getEnv("API_KEY", ""),
+		Version:     getEnv("VERSION", ""),
+		CommitHash:  getEnv("COMMIT_HASH", ""),
+		BuildDate:   getEnv("BUILD_DATE", ""),
+
+		// Site metadata
+		SiteName:             getEnv("SITE_NAME", "Landing"),
+		SiteBaseURL:          getEnv("SITE_BASE_URL", ""),
+		SiteLogo:             getEnv("SITE_LOGO", "/favicon.ico"),
+		DefaultFeaturedImage: getEnv("FEATURED_IMAGE", "/og-default.jpg"),
+		AuthorName:           getEnv("AUTHOR_NAME", "Admin"),
+		AuthorBio:            getEnv("AUTHOR_BIO", ""),
 	}
 	return cfg
 }

@@ -17,10 +17,10 @@
     <div>
       <div class="font-semibold">لینک‌های سریع</div>
       <ul class="mt-3 space-y-2" role="list">
-        <li role="listitem"><a href="#services" class="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded">خدمات</a></li>
-        <li role="listitem"><a href="#portfolio" class="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded">نمونه کارها</a></li>
-        <li role="listitem"><a href="#about" class="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded">درباره ما</a></li>
-        <li role="listitem"><a href="#contact" class="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded">تماس با ما</a></li>
+        <li role="listitem"><a href="/services" class="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded">خدمات</a></li>
+        <li role="listitem"><a href="/#portfolio" class="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded">نمونه کارها</a></li>
+        <li role="listitem"><a href="/#about" class="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded">درباره ما</a></li>
+        <li role="listitem"><a href="/contact" class="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded">تماس با ما</a></li>
       </ul>
     </div>
 
