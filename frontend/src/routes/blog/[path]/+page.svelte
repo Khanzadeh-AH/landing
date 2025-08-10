@@ -163,36 +163,37 @@
     <div class="h-full bg-primary-500/80" style={`width:${progress}%; transition: width 100ms linear;`}></div>
   </div>
 
-  <div class="max-w-3xl mx-auto">
-    <nav class="mb-3 text-sm text-slate-500">
-      <a class="hover:underline" href="/blog">بلاگ</a>
-      <span class="mx-1">/</span>
-      <span class="text-slate-700 dark:text-slate-300">{titleFromHTML(data.blog.text, data.blog.path)}</span>
-    </nav>
+  <div class="mx-auto max-w-6xl lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-8">
+    <div class="min-w-0 lg:col-start-2 lg:row-start-1">
+      <nav class="mb-3 text-sm text-slate-500">
+        <a class="hover:underline" href="/blog">بلاگ</a>
+        <span class="mx-1">/</span>
+        <span class="text-slate-700 dark:text-slate-300">{titleFromHTML(data.blog.text, data.blog.path)}</span>
+      </nav>
 
-    <div class="mb-2 flex items-center gap-2">
-      <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px]">{data.blog.category}</span>
-      <span class="text-[11px] text-slate-400">{faNum(readingTime(data.blog.text))} دقیقه مطالعه</span>
-    </div>
+      <div class="mb-2 flex items-center gap-2">
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px]">{data.blog.category}</span>
+        <span class="text-[11px] text-slate-400">{faNum(readingTime(data.blog.text))} دقیقه مطالعه</span>
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight mb-6">{titleFromHTML(data.blog.text, data.blog.path)}</h1>
 
-    <h1 class="text-3xl font-extrabold tracking-tight mb-6">{titleFromHTML(data.blog.text, data.blog.path)}</h1>
+      {#if toc.length > 0}
+        <!-- Mobile/Tablet ToC -->
+        <aside class="mb-6 border rounded-xl bg-white/70 dark:bg-slate-900/40 p-4 lg:hidden">
+          <h2 class="text-sm font-bold mb-2 text-slate-700 dark:text-slate-200">فهرست مطالب</h2>
+          <nav>
+            <ul class="space-y-1 text-sm">
+              {#each toc as item}
+                <li class={`ps-${item.level === 3 ? '4' : '0'}`}>
+                  <a class={`hover:underline ${activeId === item.id ? 'text-primary-600 dark:text-primary-400' : 'text-slate-600 dark:text-slate-300'}`} href={`#${item.id}`} aria-current={activeId === item.id ? 'true' : 'false'}>{item.text}</a>
+                </li>
+              {/each}
+            </ul>
+          </nav>
+        </aside>
+      {/if}
 
-    {#if toc.length > 0}
-      <aside class="mb-6 border rounded-xl bg-white/70 dark:bg-slate-900/40 p-4 sticky top-20">
-        <h2 class="text-sm font-bold mb-2 text-slate-700 dark:text-slate-200">فهرست مطالب</h2>
-        <nav>
-          <ul class="space-y-1 text-sm">
-            {#each toc as item}
-              <li class={`ps-${item.level === 3 ? '4' : '0'}`}>
-                <a class={`hover:underline ${activeId === item.id ? 'text-primary-600 dark:text-primary-400' : 'text-slate-600 dark:text-slate-300'}`} href={`#${item.id}`} aria-current={activeId === item.id ? 'true' : 'false'}>{item.text}</a>
-              </li>
-            {/each}
-          </ul>
-        </nav>
-      </aside>
-    {/if}
-
-    <article bind:this={articleEl} class="prose prose-slate dark:prose-invert max-w-none prose-img:rounded-xl prose-headings:scroll-mt-24">
+    <article bind:this={articleEl} class="prose prose-lg md:prose-xl prose-slate dark:prose-invert max-w-none leading-relaxed prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl prose-blockquote:border-s-4 prose-blockquote:ps-4 prose-pre:rounded-xl prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:bg-slate-100 dark:prose-code:bg-slate-800 prose-headings:scroll-mt-24">
       {@html data.blog.text}
     </article>
 
@@ -213,6 +214,25 @@
           {/each}
         </ul>
       </div>
+    {/if}
+    </div>
+
+    {#if toc.length > 0}
+      <!-- Desktop sticky ToC on the right -->
+      <aside class="hidden lg:block lg:col-start-1 lg:row-start-1 self-start">
+        <div class="sticky top-24 max-h-[calc(100vh-6rem)] overflow-auto border rounded-xl bg-white/70 dark:bg-slate-900/40 p-4">
+          <h2 class="text-sm font-bold mb-2 text-slate-700 dark:text-slate-200">فهرست مطالب</h2>
+          <nav>
+            <ul class="space-y-1 text-sm">
+              {#each toc as item}
+                <li class={`ps-${item.level === 3 ? '4' : '0'}`}>
+                  <a class={`hover:underline ${activeId === item.id ? 'text-primary-600 dark:text-primary-400' : 'text-slate-600 dark:text-slate-300'}`} href={`#${item.id}`} aria-current={activeId === item.id ? 'true' : 'false'}>{item.text}</a>
+                </li>
+              {/each}
+            </ul>
+          </nav>
+        </div>
+      </aside>
     {/if}
   </div>
 </section>
