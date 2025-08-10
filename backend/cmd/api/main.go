@@ -54,19 +54,16 @@ func main() {
 		if cfg.IsDevelopment() {
 			db.SeedDev(ctx, client)
 		}
-        // Inject a live Ent client per request (auto-heals if the connection was closed).
+        // Attach the initialized Ent client to each request (kept open for app lifetime).
         app.Use(func(c *fiber.Ctx) error {
-            cli, err := db.EnsureClient(context.Background(), cfg)
-            if err != nil {
-                log.Printf("EnsureClient failed: %v", err)
-                return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "database unavailable"})
-            }
-            c.Locals("ent", cli)
+            c.Locals("ent", client)
             return c.Next()
         })
 		// Ensure DB is closed on app shutdown
 		app.Hooks().OnShutdown(func() error {
 			log.Println("OnShutdown: closing Ent DB client...")
+			// Allow the wrapped driver to actually close at shutdown time.
+			db.EnableDBClose()
 			if err := client.Close(); err != nil {
 				log.Printf("error closing db client: %v", err)
 				return err

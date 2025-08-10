@@ -39,8 +39,10 @@ func OpenClient(ctx context.Context, cfg config.Config) (*ent.Client, error) {
 			return nil, fmt.Errorf("failed to ping database: %w", err)
 		}
 	}
-	drv := entsql.OpenDB(dialect.Postgres, sqldb)
-	client := ent.NewClient(ent.Driver(drv))
+	base := entsql.OpenDB(dialect.Postgres, sqldb)
+    // Prevent accidental closure during runtime; allow closing only on shutdown.
+    wrapped := wrapKeepOpen(base)
+	client := ent.NewClient(ent.Driver(wrapped))
 
 	// Auto-migrate in development environment
 	if cfg.IsDevelopment() {
