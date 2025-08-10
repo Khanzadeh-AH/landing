@@ -25,6 +25,26 @@
     return Math.max(1, Math.round(words / 200)); // ~200 wpm
   }
 
+  // Extract the first <h1> (or <h2>) as the title; fallback provided by caller
+  function titleFromHTML(html: string, fallback: string): string {
+    const h1 = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(html)?.[1];
+    if (h1) return stripHtml(h1).trim();
+    const h2 = /<h2[^>]*>([\s\S]*?)<\/h2>/i.exec(html)?.[1];
+    if (h2) return stripHtml(h2).trim();
+    return fallback;
+  }
+
+  // Extract first <img> src/alt for thumbnail rendering
+  function firstImage(html: string): { src: string; alt: string } | null {
+    const imgMatch = /<img[^>]*src=["']([^"']+)["'][^>]*>/i.exec(html);
+    if (!imgMatch) return null;
+    const tag = imgMatch[0];
+    const src = imgMatch[1];
+    const altMatch = /alt=["']([^"']*)["']/i.exec(tag);
+    const alt = altMatch ? altMatch[1] : '';
+    return { src, alt };
+  }
+
   const faDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
   function faNum(n: number): string {
     return String(n).replace(/\d/g, (d) => faDigits[Number(d)] ?? d);
@@ -95,14 +115,29 @@
   {:else}
     <ul class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
       {#each visible as b}
-        <li class="group rounded-2xl border p-5 bg-white/70 dark:bg-slate-900/40 transition hover:shadow-md hover:-translate-y-0.5">
-          <a class="block focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600 rounded-xl" href={`/blog/${b.path}`}>
-            <div class="mb-2 flex items-center gap-2">
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px]">{b.category}</span>
-              <span class="text-[11px] text-slate-400">{faNum(readingTime(b.text))} دقیقه مطالعه</span>
+        <li class="group rounded-2xl border bg-white/70 dark:bg-slate-900/40 transition hover:shadow-md hover:-translate-y-0.5 overflow-hidden">
+          <a class="block focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600" href={`/blog/${b.path}`} aria-label={titleFromHTML(b.text, b.path)}>
+            {#if firstImage(b.text)}
+              {#key b.path}
+                <div class="w-full aspect-[16/9] bg-slate-100 dark:bg-slate-800">
+                  <img
+                    src={firstImage(b.text)?.src}
+                    alt={firstImage(b.text)?.alt}
+                    loading="lazy"
+                    decoding="async"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+              {/key}
+            {/if}
+            <div class="p-5">
+              <div class="mb-2 flex items-center gap-2">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px]">{b.category}</span>
+                <span class="text-[11px] text-slate-400">{faNum(readingTime(b.text))} دقیقه مطالعه</span>
+              </div>
+              <h2 class="font-extrabold text-base mb-2 line-clamp-2 group-hover:underline">{titleFromHTML(b.text, b.path)}</h2>
+              <p class="text-sm text-slate-600 dark:text-slate-300 line-clamp-3">{excerpt(b.text, 180)}</p>
             </div>
-            <h2 class="font-extrabold text-base mb-2 line-clamp-2 group-hover:underline">{b.path}</h2>
-            <p class="text-sm text-slate-600 dark:text-slate-300 line-clamp-3">{excerpt(b.text, 180)}</p>
           </a>
         </li>
       {/each}

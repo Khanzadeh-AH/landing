@@ -1,6 +1,7 @@
 <script lang="ts">
   export let data: { blog: { category: string; text: string; path: string }; similar: { category: string; text: string; path: string }[] };
   import { onMount } from 'svelte';
+  import { env as publicEnv } from '$env/dynamic/public';
 
   function stripHtml(html: string): string {
     return html.replace(/<[^>]*>/g, ' ');
@@ -16,11 +17,42 @@
     return String(n).replace(/\d/g, (d) => faDigits[Number(d)] ?? d);
   }
 
+  // Derive meta and display values from HTML body
+  function titleFromHTML(html: string, fallback: string): string {
+    const h1 = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(html)?.[1];
+    if (h1) return stripHtml(h1).trim();
+    const h2 = /<h2[^>]*>([\s\S]*?)<\/h2>/i.exec(html)?.[1];
+    if (h2) return stripHtml(h2).trim();
+    return fallback;
+  }
+  function descriptionFromHTML(html: string, max = 160): string {
+    const p = /<p[^>]*>([\s\S]*?)<\/p>/i.exec(html)?.[1];
+    const text = stripHtml(p || html).replace(/\s+/g, ' ').trim();
+    return text.length > max ? (text.slice(0, max).trim() + '…') : text;
+  }
+  function firstImage(html: string): { src: string; alt: string } | null {
+    const imgMatch = /<img[^>]*src=["']([^"']+)["'][^>]*>/i.exec(html);
+    if (!imgMatch) return null;
+    const tag = imgMatch[0];
+    const src = imgMatch[1];
+    const altMatch = /alt=["']([^"']*)["']/i.exec(tag);
+    const alt = altMatch ? altMatch[1] : '';
+    return { src, alt };
+  }
+
+  // Site/Canonical
+  const BASE = (publicEnv.PUBLIC_BASE_URL?.trim()) || 'https://tehranbot.me';
+  const SITE_NAME = 'TehranBot';
+  $: canonical = `${BASE}/blog/${encodeURIComponent(data.blog.path)}`;
+  $: pageTitle = `${titleFromHTML(data.blog.text, data.blog.path)} | ${SITE_NAME}`;
+  $: metaDescription = descriptionFromHTML(data.blog.text, 180);
+
   // Reading progress
   let progress = 0;
   let articleEl: HTMLElement;
   let articleTop = 0;
   let articleHeight = 0;
+  let activeId: string | null = null;
 
   function slugify(text: string): string {
     return text
@@ -69,6 +101,26 @@
         if (!h.id) h.id = unique;
         return { id: unique, text: (h.textContent || '').trim(), level: h.tagName === 'H3' ? 3 : 2 };
       });
+
+      // Active section tracking via IntersectionObserver
+      const io = new IntersectionObserver(
+        (entries) => {
+          // Pick the heading nearest to top that's intersecting
+          const visible = entries
+            .filter((e) => e.isIntersecting)
+            .sort((a, b) => (a.target as HTMLElement).offsetTop - (b.target as HTMLElement).offsetTop);
+          if (visible.length > 0) {
+            activeId = (visible[0].target as HTMLElement).id || null;
+          }
+        },
+        {
+          root: null,
+          // Trigger a bit before the top to feel responsive
+          rootMargin: '-20% 0px -70% 0px',
+          threshold: [0, 1]
+        }
+      );
+      headers.forEach((h) => io.observe(h));
     }
 
     recalc();
@@ -86,6 +138,25 @@
   });
 </script>
 
+<svelte:head>
+  <link rel="canonical" href={canonical} />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:url" content={canonical} />
+  {#if firstImage(data.blog.text)}
+    <meta property="og:image" content={firstImage(data.blog.text)?.src} />
+  {/if}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={metaDescription} />
+  {#if firstImage(data.blog.text)}
+    <meta name="twitter:image" content={firstImage(data.blog.text)?.src} />
+  {/if}
+</svelte:head>
+
 <section id="main-content" class="container-rtl py-10">
   <!-- Top reading progress bar -->
   <div class="fixed top-0 inset-x-0 h-1 bg-transparent z-40">
@@ -96,7 +167,7 @@
     <nav class="mb-3 text-sm text-slate-500">
       <a class="hover:underline" href="/blog">بلاگ</a>
       <span class="mx-1">/</span>
-      <span class="text-slate-700 dark:text-slate-300">{data.blog.path}</span>
+      <span class="text-slate-700 dark:text-slate-300">{titleFromHTML(data.blog.text, data.blog.path)}</span>
     </nav>
 
     <div class="mb-2 flex items-center gap-2">
@@ -104,16 +175,16 @@
       <span class="text-[11px] text-slate-400">{faNum(readingTime(data.blog.text))} دقیقه مطالعه</span>
     </div>
 
-    <h1 class="text-3xl font-extrabold tracking-tight mb-6">{data.blog.path}</h1>
+    <h1 class="text-3xl font-extrabold tracking-tight mb-6">{titleFromHTML(data.blog.text, data.blog.path)}</h1>
 
     {#if toc.length > 0}
-      <aside class="mb-6 border rounded-xl bg-white/70 dark:bg-slate-900/40 p-4">
+      <aside class="mb-6 border rounded-xl bg-white/70 dark:bg-slate-900/40 p-4 sticky top-20">
         <h2 class="text-sm font-bold mb-2 text-slate-700 dark:text-slate-200">فهرست مطالب</h2>
         <nav>
           <ul class="space-y-1 text-sm">
             {#each toc as item}
               <li class={`ps-${item.level === 3 ? '4' : '0'}`}>
-                <a class="hover:underline text-slate-600 dark:text-slate-300" href={`#${item.id}`}>{item.text}</a>
+                <a class={`hover:underline ${activeId === item.id ? 'text-primary-600 dark:text-primary-400' : 'text-slate-600 dark:text-slate-300'}`} href={`#${item.id}`} aria-current={activeId === item.id ? 'true' : 'false'}>{item.text}</a>
               </li>
             {/each}
           </ul>
@@ -121,7 +192,7 @@
       </aside>
     {/if}
 
-    <article bind:this={articleEl} class="prose prose-slate dark:prose-invert max-w-none">
+    <article bind:this={articleEl} class="prose prose-slate dark:prose-invert max-w-none prose-img:rounded-xl prose-headings:scroll-mt-24">
       {@html data.blog.text}
     </article>
 
